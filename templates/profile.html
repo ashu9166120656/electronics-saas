@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile — Electronics SaaS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                   Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .nav-left  { display: flex; gap: 14px; }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+
+    .nav a {
+      color: #94a3b8; text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      padding: 6px 12px; border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav a:hover { color: #e2e8f0; background: #334155; }
+    .nav a.active { color: #38bdf8; background: #0f172a; }
+
+    .nav-right .auth-link {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    .nav-right .auth-link:hover { color: #38bdf8; background: transparent; }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      margin-top: 48px;
+    }
+
+    .card h1 {
+      font-size: 1.5rem; font-weight: 700;
+      margin-bottom: 6px; color: #f1f5f9;
+    }
+
+    .card .subtitle {
+      font-size: 0.85rem; color: #94a3b8; margin-bottom: 28px;
+    }
+
+    /* Pro badge in header */
+    .pro-badge {
+      display: inline-block;
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 3px 10px; border-radius: 12px;
+      margin-left: 8px; vertical-align: middle;
+    }
+
+    .free-badge {
+      display: inline-block;
+      background: #334155;
+      color: #94a3b8;
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 3px 10px; border-radius: 12px;
+      margin-left: 8px; vertical-align: middle;
+    }
+
+    .pro-expiry {
+      font-size: 0.78rem; color: #34d399;
+      margin-bottom: 20px; text-align: center;
+    }
+
+    .upgrade-cta {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 0.85rem; font-weight: 600;
+      color: #0f172a;
+      background: #38bdf8;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .upgrade-cta:hover { background: #7dd3fc; }
+
+    .stats {
+      display: flex; gap: 14px;
+    }
+
+    .stat {
+      flex: 1;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px 18px;
+      text-align: center;
+    }
+
+    .stat .label {
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: #94a3b8; margin-bottom: 8px;
+    }
+
+    .stat .value {
+      font-size: 2.2rem; font-weight: 700;
+      color: #38bdf8; line-height: 1;
+    }
+
+    .stat .value.warn { color: #fbbf24; }
+    .stat .value.good { color: #34d399; }
+
+    .stat .unit {
+      font-size: 0.8rem; font-weight: 500;
+      color: #64748b; margin-top: 4px;
+    }
+
+    .limit-note {
+      margin-top: 20px;
+      font-size: 0.8rem; color: #64748b;
+      text-align: center;
+    }
+
+    .calculator-links {
+      margin-top: 24px;
+      display: flex; gap: 8px;
+    }
+
+    .calculator-links a {
+      flex: 1;
+      display: block; text-align: center;
+      padding: 10px 8px;
+      font-size: 0.78rem; font-weight: 600;
+      color: #94a3b8; text-decoration: none;
+      background: #0f172a; border: 1px solid #334155;
+      border-radius: 8px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .calculator-links a:hover {
+      color: #38bdf8; border-color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-left">
+      <a href="/"         >PCB Trace Width</a>
+      <a href="/impedance">Microstrip Impedance</a>
+      <a href="/buck"     >Buck Converter</a>
+      <a href="/pricing"  >Pricing</a>
+    </div>
+    <div class="nav-right">
+      <span class="auth-link">{{ current_user.email }}</span>
+      <a href="{{ url_for('logout') }}" class="auth-link" style="color:#f87171;">Logout</a>
+    </div>
+  </nav>
+
+  <div class="card">
+    <h1>
+      Profile
+      {% if is_pro %}
+        <span class="pro-badge">PRO</span>
+      {% else %}
+        <span class="free-badge">FREE</span>
+      {% endif %}
+    </h1>
+    <p class="subtitle">{{ current_user.email }}</p>
+
+    {% if is_pro and pro_expiry %}
+    <div class="pro-expiry">
+      Pro expires: {{ pro_expiry[:10] }}
+    </div>
+    {% endif %}
+
+    {% if not is_pro %}
+    <a href="{{ url_for('pricing') }}" class="upgrade-cta">
+      Upgrade to Pro — ₹199 / 30 days
+    </a>
+    {% endif %}
+
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Today</div>
+        <div class="value {% if today >= daily_limit and not is_pro %}warn{% endif %}">{{ today }}</div>
+        <div class="unit">calculations</div>
+      </div>
+      <div class="stat">
+        <div class="label">Remaining</div>
+        <div class="value {% if is_pro %}good{% elif remaining == 0 %}warn{% elif remaining <= 2 %}warn{% else %}good{% endif %}">
+          {% if is_pro %}∞{% else %}{{ remaining }}{% endif %}
+        </div>
+        <div class="unit">{% if is_pro %}unlimited{% else %}of {{ daily_limit }}{% endif %}</div>
+      </div>
+      <div class="stat">
+        <div class="label">All Time</div>
+        <div class="value">{{ total }}</div>
+        <div class="unit">calculations</div>
+      </div>
+    </div>
+
+    {% if not is_pro and remaining == 0 %}
+    <div class="limit-note" style="color:#fca5a5;">
+      Daily limit reached.
+      <a href="{{ url_for('pricing') }}" style="color:#38bdf8;">Get Pro</a> for unlimited.
+    </div>
+    {% endif %}
+
+    <div class="calculator-links">
+      <a href="/">PCB Trace Width</a>
+      <a href="/impedance">Microstrip Impedance</a>
+      <a href="/buck">Buck Converter</a>
+    </div>
+  </div>
+</body>
+</html>

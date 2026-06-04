@@ -1,2 +1,4 @@
 flask>=3.0
+flask-login>=0.6
+razorpay>=1.4
 gunicorn>=21.2.0

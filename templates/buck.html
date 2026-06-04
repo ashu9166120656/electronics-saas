@@ -28,10 +28,13 @@
       border-bottom: 1px solid #334155;
       padding: 10px 20px;
       display: flex;
-      gap: 20px;
-      justify-content: center;
+      align-items: center;
+      justify-content: space-between;
       z-index: 100;
     }
+
+    .nav-left  { display: flex; gap: 14px; }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
 
     .nav a {
       color: #94a3b8;
@@ -49,6 +52,13 @@
       color: #38bdf8;
       background: #0f172a;
     }
+
+    .nav-right .auth-link {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    .nav-right .auth-link:hover { color: #38bdf8; background: transparent; }
 
     .card {
       background: #1e293b;
@@ -217,9 +227,21 @@
 </head>
 <body>
   <nav class="nav">
-    <a href="/"                   >PCB Trace Width</a>
-    <a href="/impedance"          >Microstrip Impedance</a>
-    <a href="/buck"    class="active">Buck Converter</a>
+    <div class="nav-left">
+      <a href="/"                   >PCB Trace Width</a>
+      <a href="/impedance"          >Microstrip Impedance</a>
+      <a href="/buck"    class="active">Buck Converter</a>
+      <a href="/pricing"            >Pricing</a>
+    </div>
+    <div class="nav-right">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile') }}" class="auth-link">{{ current_user.email }}</a>
+        <a href="{{ url_for('logout') }}" class="auth-link" style="color:#f87171;">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="auth-link">Login</a>
+        <a href="{{ url_for('signup') }}" class="auth-link">Sign Up</a>
+      {% endif %}
+    </div>
   </nav>
 
   <div class="card">

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pricing — Electronics SaaS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                   Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .nav-left  { display: flex; gap: 14px; }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+
+    .nav a {
+      color: #94a3b8; text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      padding: 6px 12px; border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav a:hover { color: #e2e8f0; background: #334155; }
+    .nav a.active { color: #38bdf8; background: #0f172a; }
+
+    .nav-right .auth-link {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    .nav-right .auth-link:hover { color: #38bdf8; background: transparent; }
+
+    .container {
+      margin-top: 60px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 2rem; font-weight: 700;
+      color: #f1f5f9; margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 0.9rem; color: #94a3b8;
+    }
+
+    .plans {
+      display: flex; gap: 20px;
+    }
+
+    .plan {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .plan.pro {
+      border-color: #38bdf8;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.15);
+      position: relative;
+    }
+
+    .plan .badge {
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 3px 12px; border-radius: 20px;
+    }
+
+    .plan h2 {
+      font-size: 1.1rem; font-weight: 700;
+      color: #f1f5f9; margin-bottom: 12px;
+    }
+
+    .plan .price {
+      font-size: 2.4rem; font-weight: 800;
+      color: #38bdf8; margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    .plan .price span {
+      font-size: 0.9rem; font-weight: 500;
+      color: #64748b;
+    }
+
+    .plan .duration {
+      font-size: 0.8rem; color: #64748b;
+      margin-bottom: 18px;
+    }
+
+    .plan .features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .plan .features li {
+      font-size: 0.82rem; color: #94a3b8;
+      padding: 6px 0;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .plan .features li::before {
+      content: "✓ ";
+      color: #34d399;
+      font-weight: 700;
+    }
+
+    .plan.free .features li::before {
+      content: "• ";
+      color: #64748b;
+    }
+
+    .plan button, .plan .btn-disabled {
+      width: 100%;
+      padding: 12px;
+      font-size: 0.9rem; font-weight: 600;
+      border: none; border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .plan.free .btn-disabled {
+      background: #334155;
+      color: #64748b;
+      cursor: default;
+    }
+
+    .plan.pro button {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+
+    .plan.pro button:hover { background: #7dd3fc; }
+
+    .plan.pro button:disabled {
+      background: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .note {
+      text-align: center;
+      font-size: 0.75rem; color: #475569;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 500px) {
+      .plans { flex-direction: column; }
+      .container { margin-top: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-left">
+      <a href="/"         >PCB Trace Width</a>
+      <a href="/impedance">Microstrip Impedance</a>
+      <a href="/buck"     >Buck Converter</a>
+      <a href="/pricing" class="active">Pricing</a>
+    </div>
+    <div class="nav-right">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile') }}" class="auth-link">{{ current_user.email }}</a>
+        <a href="{{ url_for('logout') }}" class="auth-link" style="color:#f87171;">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="auth-link">Login</a>
+        <a href="{{ url_for('signup') }}" class="auth-link">Sign Up</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>Choose Your Plan</h1>
+      <p>Unlock unlimited calculations with Pro</p>
+    </div>
+
+    <div class="plans">
+      <!-- Free plan -->
+      <div class="plan free">
+        <h2>Free</h2>
+        <div class="price">₹0</div>
+        <div class="duration">forever</div>
+        <ul class="features">
+          <li>{{ daily_limit }} calculations per day</li>
+          <li>PCB Trace Width</li>
+          <li>Microstrip Impedance</li>
+          <li>Buck Converter</li>
+        </ul>
+        <div class="btn-disabled">Current Plan</div>
+      </div>
+
+      <!-- Pro plan -->
+      <div class="plan pro">
+        <div class="badge">Popular</div>
+        <h2>Pro</h2>
+        <div class="price">₹{{ pro_price }} <span>INR</span></div>
+        <div class="duration">per 30 days</div>
+        <ul class="features">
+          <li>Unlimited calculations</li>
+          <li>All Free features</li>
+          <li>Priority support</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <button id="subscribe-btn" onclick="startPayment()">
+          {% if current_user.is_authenticated %}Subscribe Now{% else %}Sign Up to Subscribe{% endif %}
+        </button>
+      </div>
+    </div>
+
+    <p class="note">
+      Payments processed securely via Razorpay. 30-day access from purchase date.
+    </p>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    async function startPayment() {
+      {% if not current_user.is_authenticated %}
+        window.location.href = "{{ url_for('login', next='/pricing') }}";
+        return;
+      {% endif %}
+
+      const btn = document.getElementById("subscribe-btn");
+      btn.disabled = true;
+      btn.textContent = "Creating order…";
+
+      try {
+        const resp = await fetch("{{ url_for('create-order') }}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await resp.json();
+
+        if (data.error) {
+          alert("Error: " + data.error);
+          btn.disabled = false;
+          btn.textContent = "Subscribe Now";
+          return;
+        }
+
+        const options = {
+          key: "{{ razorpay_key_id }}",
+          amount: data.amount,
+          currency: data.currency,
+          name: "Electronics SaaS",
+          description: "Pro Subscription — 30 days",
+          order_id: data.order_id,
+          handler: function (response) {
+            // Post to payment-success
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{{ url_for('payment-success') }}";
+            for (const [key, value] of Object.entries(response)) {
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = "razorpay_" + key;
+              input.value = value;
+              form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
+          },
+          prefill: {
+            email: "{{ current_user.email if current_user.is_authenticated else '' }}",
+          },
+          theme: { color: "#38bdf8" },
+          modal: {
+            ondismiss: function () {
+              btn.disabled = false;
+              btn.textContent = "Subscribe Now";
+            },
+          },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong. Please try again.");
+        btn.disabled = false;
+        btn.textContent = "Subscribe Now";
+      }
+    }
+  </script>
+</body>
+</html>
