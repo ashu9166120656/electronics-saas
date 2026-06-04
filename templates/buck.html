@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Microstrip Impedance Calculator</title>
+  <title>Buck Converter Calculator</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -56,7 +56,7 @@
       border-radius: 16px;
       padding: 36px 32px;
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.4);
       margin-top: 48px;
     }
@@ -168,6 +168,24 @@
       color: #64748b;
     }
 
+    .results .dual {
+      display: flex;
+      gap: 24px;
+    }
+
+    .results .dual > div { flex: 1; }
+
+    .results .dual .value {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+
+    .results .recommended {
+      font-size: 0.78rem;
+      color: #34d399;
+      margin-bottom: 14px;
+    }
+
     .results .meta {
       font-size: 0.8rem;
       color: #64748b;
@@ -193,48 +211,49 @@
       .card { padding: 24px 18px; }
       .results .value { font-size: 1.6rem; }
       .row { flex-direction: column; gap: 0; }
+      .results .dual { flex-direction: column; gap: 0; }
     }
   </style>
 </head>
 <body>
   <nav class="nav">
-    <a href="/"               >PCB Trace Width</a>
-    <a href="/impedance" class="active">Microstrip Impedance</a>
-    <a href="/buck"           >Buck Converter</a>
+    <a href="/"                   >PCB Trace Width</a>
+    <a href="/impedance"          >Microstrip Impedance</a>
+    <a href="/buck"    class="active">Buck Converter</a>
   </nav>
 
   <div class="card">
-    <h1>Microstrip Impedance Calculator</h1>
-    <p class="subtitle">IPC-2141 standard — characteristic impedance of a microstrip trace</p>
+    <h1>Buck Regulator Design Calculator</h1>
+    <p class="subtitle">Calculate duty cycle, inductor, output capacitor — with recommended standard components</p>
 
     <form method="post">
       <div class="row">
         <div class="form-group">
-          <label for="trace_w">Trace Width (mm)</label>
-          <input type="number" id="trace_w" name="trace_w" step="any" min="0.01"
-                 value="{{ form_data.get('trace_w', '0.5') }}" placeholder="e.g. 0.5" required>
+          <label for="vin">Input Voltage Vin (V)</label>
+          <input type="number" id="vin" name="vin" step="any" min="0.1"
+                 value="{{ form_data.get('vin', '12') }}" placeholder="e.g. 12" required>
         </div>
         <div class="form-group">
-          <label for="dielectric_h">Dielectric Thickness (mm)</label>
-          <input type="number" id="dielectric_h" name="dielectric_h" step="any" min="0.01"
-                 value="{{ form_data.get('dielectric_h', '0.2') }}" placeholder="e.g. 0.2" required>
+          <label for="vout">Output Voltage Vout (V)</label>
+          <input type="number" id="vout" name="vout" step="any" min="0.1"
+                 value="{{ form_data.get('vout', '5') }}" placeholder="e.g. 5" required>
         </div>
       </div>
 
       <div class="row">
         <div class="form-group">
-          <label for="er">Dielectric Constant (Er)</label>
-          <input type="number" id="er" name="er" step="any" min="0.1"
-                 value="{{ form_data.get('er', '4.5') }}" placeholder="e.g. 4.5" required>
+          <label for="iout">Output Current Iout (A)</label>
+          <input type="number" id="iout" name="iout" step="any" min="0.01"
+                 value="{{ form_data.get('iout', '2') }}" placeholder="e.g. 2" required>
         </div>
         <div class="form-group">
-          <label for="copper_oz">Trace Thickness (oz)</label>
-          <input type="number" id="copper_oz" name="copper_oz" step="any" min="0.1"
-                 value="{{ form_data.get('copper_oz', '1') }}" placeholder="e.g. 1" required>
+          <label for="freq_khz">Switching Frequency (kHz)</label>
+          <input type="number" id="freq_khz" name="freq_khz" step="any" min="1"
+                 value="{{ form_data.get('freq_khz', '500') }}" placeholder="e.g. 500" required>
         </div>
       </div>
 
-      <button type="submit">Calculate Impedance</button>
+      <button type="submit">Calculate</button>
     </form>
 
     {% if error %}
@@ -243,19 +262,34 @@
 
     {% if result %}
     <div class="results">
-      <div class="label">Characteristic Impedance (Z₀)</div>
-      <div class="value">{{ result.z0 }} <span>Ω</span></div>
+      <div class="label">Duty Cycle</div>
+      <div class="value">{{ result.D }} <span>%</span></div>
+
+      <div class="dual">
+        <div>
+          <div class="label">Inductor</div>
+          <div class="value">{{ result.L_uh }} <span>µH</span></div>
+          <div class="recommended">Recommended: {{ result.L_std }} µH (std)</div>
+        </div>
+        <div>
+          <div class="label">Output Capacitor</div>
+          <div class="value">{{ result.C_uf }} <span>µF</span></div>
+          <div class="recommended">Recommended: {{ result.C_std }} µF (std)</div>
+        </div>
+      </div>
+
       <div class="meta">
-        <div><span>Trace width</span><span>{{ result.trace_w }} mm</span></div>
-        <div><span>Dielectric thickness</span><span>{{ result.dielectric_h }} mm</span></div>
-        <div><span>Dielectric constant (Er)</span><span>{{ result.er }}</span></div>
-        <div><span>Trace thickness</span><span>{{ result.t_mm }} mm</span></div>
+        <div><span>Inductor ripple current (30% Iout)</span><span>{{ result.I_ripple_a }} A</span></div>
+        <div><span>Peak inductor current</span><span>{{ result.I_peak_a }} A</span></div>
+        <div><span>Target output ripple (1% Vout)</span><span>{{ result.V_ripple_mv }} mV</span></div>
       </div>
     </div>
     {% endif %}
 
     <p class="formula-note">
-      Formula: <em>Z₀ = 87 / √(Er + 1.41) · ln(5.98·h / (0.8·w + t))</em> &nbsp;(IPC-2141)
+      Formulas: <em>D = Vout / Vin</em> &nbsp;·&nbsp;
+      <em>L = (Vin − Vout) · D / (f · ΔI<sub>L</sub>)</em> &nbsp;·&nbsp;
+      <em>C = ΔI<sub>L</sub> / (8 · f · ΔV<sub>out</sub>)</em>
     </p>
   </div>
 </body>
